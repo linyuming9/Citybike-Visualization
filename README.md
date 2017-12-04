@@ -1,4 +1,4 @@
-# Citybike-tripdata
+# Citybike-Visualization
 A simple visualization of Citybike data
 
 - Data Source: https://s3.amazonaws.com/tripdata/index.html
