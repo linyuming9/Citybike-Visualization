@@ -68,7 +68,7 @@ bmap = Basemap(projection='merc', lat_ts=40.65,
                llcrnrlon=-74.08, urcrnrlon=-73.90,
                resolution=None, ax=ax)
 
-shp_info = bmap.readshapefile('C:/Users/Lin Yuming/Downloads/new-york_new-york.imposm-shapefiles/new-york_new-york_osm_roads',
+shp_info = bmap.readshapefile('new-york_new-york_osm_roads',
                               'shp', drawbounds=True, linewidth=0.1)
 
 
