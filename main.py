@@ -100,3 +100,52 @@ def update(i):
 
 anim = animation.FuncAnimation(fig, update, frames=C.shape[0], interval=200)
 anim.save('flow.mp4')
+
+
+
+# Focus on specific station
+
+loc = int(station[station['station name'] == 'E 47 St & Park Ave']['station id'])
+
+temp = data[(data['start station id'] == loc) | (data['end station id'] == loc)].copy()
+temp['change'] = np.where(temp['start station id'] == loc, -1, 1)
+temp['type'] = temp['change'] > 0
+
+temp['changetime'] = np.where(temp['start station id'] == loc, temp['starttime'], temp['stoptime'])
+temp['changetime'] = temp['changetime'].dt.floor('15min') # Down sampling into 15 minutes
+
+
+
+# Calculate return, borrow and stock
+
+b = temp[temp['type'] == 0].groupby(['changetime'])['change'].sum().reset_index() 
+b['time'] = b['changetime'].dt.hour 
+b = b.groupby('time')['change'].mean() 
+
+r = temp[temp['type'] == 1].groupby(['changetime'])['change'].sum().reset_index() 
+r['time'] = r['changetime'].dt.hour 
+r = r.groupby('time')['change'].mean()
+
+s = temp.groupby('changetime')['change'].sum().reset_index() 
+s['time'] = s['changetime'].dt.hour 
+s = s.groupby('time')['change'].mean().cumsum() + 12 
+
+
+
+# Draw the graph
+
+plt.style.use('seaborn')
+plt.figure(figsize = (12, 6))
+
+plt.plot(s, 'k--', label = 'stock')
+plt.bar(left = r.index - 0.2, height = r.values, width = 0.4, facecolor ='blue', label = 'return')
+plt.bar(left = b.index + 0.2, height = -b.values, width = 0.4, facecolor ='red', label = 'borrow')
+
+plt.xlim([-1,24])
+plt.xlabel('Hour')
+plt.ylabel('Count')
+
+plt.legend()
+plt.tight_layout(pad=1.03)
+
+plt.savefig('E_47_St_&_Park_Ave.png', dpi=300, facecolor='w')
